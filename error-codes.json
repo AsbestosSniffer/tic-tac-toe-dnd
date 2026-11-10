@@ -1,0 +1,5 @@
+{
+    "TOO_SHORT": "Input not long enough",
+    "NOT_INT": "At least one input is not an integer",
+    "NOT_IN_BOUNDS": "Coordinates not within bounds"
+}
