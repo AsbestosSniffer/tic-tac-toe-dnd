@@ -11,7 +11,6 @@ class GameStatus(Enum):
     DRAW = 0
     X_WINS = 1
     O_WINS = 2
-    ONGOING = 3
 
 board_state = [['_' for _ in range(3)] for _ in range(3)]
 
@@ -19,6 +18,7 @@ board_state = [['_' for _ in range(3)] for _ in range(3)]
 row_counters = [0, 0, 0]
 col_counters = [0, 0, 0]
 diag_counters = [0, 0]
+total_num_moves = 0
 
 def show_state():
     for r in board_state:
@@ -63,16 +63,18 @@ def prompt_user():
     return valid_input 
 
 def check_game_finish():
+    result = None 
     if any(x == 3 for x in chain(row_counters, col_counters, diag_counters)):
         result = GameStatus.X_WINS
     elif any(x == -3 for x in chain(row_counters, col_counters, diag_counters)):
         result = GameStatus.O_WINS
-    else:
-        result = GameStatus.ONGOING
+    elif total_num_moves >= 9:
+        result = GameStatus.DRAW
     return result 
 
 
 def handle_move(x, y):
+    total_num_moves += 1
     board_state[x][y] = ('X' if X_turn else 'O')
     increment = 1 if X_turn else -1 
     row_counters[x] += increment
@@ -105,11 +107,11 @@ if __name__ == '__main__':
         validated_input = prompt_user() 
         result = handle_move(*validated_input)
         X_turn = not X_turn
-        if result != GameStatus.ONGOING:
+        if result:
             done = True 
             if result == GameStatus.X_WINS:
                 print("X wins!")
             elif result == GameStatus.O_WINS:
                 print("Y wins!")
-            else:
+            elif result == GameStatus.DRAW:
                 print("Draw!")
