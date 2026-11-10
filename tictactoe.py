@@ -11,10 +11,16 @@ class GameResult(Enum):
     X_WINS = 1
     O_WINS = 2
 
-GAME_STATE = [['_' for _ in range(3)] for _ in range(3)]
+BOARD_STATE = [['_' for _ in range(3)] for _ in range(3)]
+
+# Counters to check for game end
+# One-indexed for convenience
+ROW_COUNTERS = [0, 0, 0, 0]
+COL_COUNTERS = [0, 0, 0, 0]
+DIAG_COUNTERS = [0, 0, 0]
 
 def show_state():
-    for r in GAME_STATE:
+    for r in BOARD_STATE:
         for c in r: 
             print(c, end=' ')
         print()
@@ -36,7 +42,7 @@ def validate_input(coords: str) -> bool:
         print(error_codes["NOT_IN_BOUNDS"])
         return None 
 
-    if GAME_STATE[x][y] != '_':
+    if BOARD_STATE[x][y] != '_':
         print(error_codes["OCCUPIED"])
     return x, y
     
@@ -55,6 +61,14 @@ def prompt_user():
 
     return valid_input 
 
+def check_game_finish():
+    pass
+
+
+def handle_move(x, y):
+    BOARD_STATE[x][y] = 'X' if X_turn else 'O'
+    check_game_finish()
+
 if __name__ == '__main__':
     print(
         "Welcome to Tic Tac Toe!\n" \
@@ -71,5 +85,5 @@ if __name__ == '__main__':
     done = False
     while not done:
         show_state()
-        x, y = prompt_user() 
-        GAME_STATE[x][y] = 'X' if X_turn else 'O'
+        validated_input = prompt_user() 
+        handle_move(**validated_input)
