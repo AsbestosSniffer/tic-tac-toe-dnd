@@ -11,16 +11,16 @@ class GameResult(Enum):
     X_WINS = 1
     O_WINS = 2
 
-BOARD_STATE = [['_' for _ in range(3)] for _ in range(3)]
+board_state = [['_' for _ in range(3)] for _ in range(3)]
 
 # Counters to check for game end
 # One-indexed for convenience
-ROW_COUNTERS = [0, 0, 0, 0]
-COL_COUNTERS = [0, 0, 0, 0]
-DIAG_COUNTERS = [0, 0, 0]
+row_counters = [0, 0, 0, 0]
+col_counters = [0, 0, 0, 0]
+diag_counters = [0, 0, 0]
 
 def show_state():
-    for r in BOARD_STATE:
+    for r in board_state:
         for c in r: 
             print(c, end=' ')
         print()
@@ -42,7 +42,7 @@ def validate_input(coords: str) -> bool:
         print(error_codes["NOT_IN_BOUNDS"])
         return None 
 
-    if BOARD_STATE[x][y] != '_':
+    if board_state[x][y] != '_':
         print(error_codes["OCCUPIED"])
     return x, y
     
@@ -66,7 +66,18 @@ def check_game_finish():
 
 
 def handle_move(x, y):
-    BOARD_STATE[x][y] = 'X' if X_turn else 'O'
+    board_state[x][y] = 'X' if X_turn else 'O'
+    increment = 1 if X_turn else -1 
+    row_counters[x] += increment
+    col_counters[y] += increment
+    if x == y:
+        # first diagonal
+        diag_counters[1] += increment 
+    if x == 4 - y:
+        # second diagonal 
+        diag_counters[2] += increment 
+
+    
     check_game_finish()
 
 if __name__ == '__main__':
