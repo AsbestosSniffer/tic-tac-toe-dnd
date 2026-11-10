@@ -1,9 +1,15 @@
 import json
+from enum import Enum
 
 with open('error-codes.json') as error_file:
     error_json = error_file.read()
 
 error_codes = json.loads(error_json)
+
+class GameResult(Enum):
+    DRAW = 0
+    X_WINS = 1
+    O_WINS = 2
 
 GAME_STATE = [['_' for _ in range(3)] for _ in range(3)]
 
@@ -30,6 +36,8 @@ def validate_input(coords: str) -> bool:
         print(error_codes["NOT_IN_BOUNDS"])
         return None 
 
+    if GAME_STATE[x][y] != '_':
+        print(error_codes["OCCUPIED"])
     return x, y
     
 def prompt_user():
@@ -45,6 +53,7 @@ def prompt_user():
         coords = input()
         valid_input = validate_input(coords)
 
+    return valid_input 
 
 if __name__ == '__main__':
     print(
@@ -56,7 +65,11 @@ if __name__ == '__main__':
         "X starts. Enjoy!\n"
     ) 
 
+    # if turn = True, it's X's turn
+    # if turn = False, it's O's turn 
+    X_turn = True 
     done = False
     while not done:
         show_state()
-        prompt_user() 
+        x, y = prompt_user() 
+        GAME_STATE[x][y] = 'X' if X_turn else 'O'
