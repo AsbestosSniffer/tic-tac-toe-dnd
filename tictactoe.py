@@ -1,23 +1,24 @@
 import json
 from enum import Enum
+from itertools import chain 
 
 with open('error-codes.json') as error_file:
     error_json = error_file.read()
 
 error_codes = json.loads(error_json)
 
-class GameResult(Enum):
+class GameStatus(Enum):
     DRAW = 0
     X_WINS = 1
     O_WINS = 2
+    ONGOING = 3
 
 board_state = [['_' for _ in range(3)] for _ in range(3)]
 
 # Counters to check for game end
-# One-indexed for convenience
-row_counters = [0, 0, 0, 0]
-col_counters = [0, 0, 0, 0]
-diag_counters = [0, 0, 0]
+row_counters = [0, 0, 0]
+col_counters = [0, 0, 0]
+diag_counters = [0, 0]
 
 def show_state():
     for r in board_state:
@@ -42,9 +43,9 @@ def validate_input(coords: str) -> bool:
         print(error_codes["NOT_IN_BOUNDS"])
         return None 
 
-    if board_state[x][y] != '_':
+    if board_state[x-1][y-1] != '_':
         print(error_codes["OCCUPIED"])
-    return x, y
+    return x-1, y-1
     
 def prompt_user():
     print(
@@ -62,23 +63,28 @@ def prompt_user():
     return valid_input 
 
 def check_game_finish():
-    pass
+    if any(x == 3 for x in chain(row_counters, col_counters, diag_counters)):
+        result = GameStatus.X_WINS
+    elif any(x == -3 for x in chain(row_counters, col_counters, diag_counters)):
+        result = GameStatus.O_WINS
+    else:
+        result = GameStatus.ONGOING
+    return result 
 
 
 def handle_move(x, y):
-    board_state[x][y] = 'X' if X_turn else 'O'
+    board_state[x][y] = ('X' if X_turn else 'O')
     increment = 1 if X_turn else -1 
     row_counters[x] += increment
     col_counters[y] += increment
     if x == y:
         # first diagonal
-        diag_counters[1] += increment 
+        diag_counters[0] += increment 
     if x == 4 - y:
         # second diagonal 
-        diag_counters[2] += increment 
-
-    
-    check_game_finish()
+        diag_counters[1] += increment         
+    result = check_game_finish()
+    return result 
 
 if __name__ == '__main__':
     print(
@@ -97,4 +103,13 @@ if __name__ == '__main__':
     while not done:
         show_state()
         validated_input = prompt_user() 
-        handle_move(**validated_input)
+        result = handle_move(*validated_input)
+        X_turn = not X_turn
+        if result != GameStatus.ONGOING:
+            done = True 
+            if result == GameStatus.X_WINS:
+                print("X wins!")
+            elif result == GameStatus.O_WINS:
+                print("Y wins!")
+            else:
+                print("Draw!")
