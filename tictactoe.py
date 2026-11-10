@@ -45,6 +45,8 @@ def validate_input(coords: str) -> bool:
 
     if board_state[x-1][y-1] != '_':
         print(error_codes["OCCUPIED"])
+        return None
+    
     return x-1, y-1
     
 def prompt_user():
@@ -74,6 +76,7 @@ def check_game_finish():
 
 
 def handle_move(x, y):
+    global total_num_moves 
     total_num_moves += 1
     board_state[x][y] = ('X' if X_turn else 'O')
     increment = 1 if X_turn else -1 
